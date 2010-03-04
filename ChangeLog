@@ -1,3 +1,87 @@
+2010-03-04  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* Release version 4.1.
+
+	* sml-mode.el: Don't setup load-path here any more.
+	* Makefile ($(PACKAGE)-startup.el): Recreate from scratch every time.
+	Setup load-path.
+	(dist): Try to update it to use Svn rather than CVS.
+
+2007-11-08  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* sml-proc.el (inferior-sml-next-error-hook): Make it match one
+	more format.
+
+2007-10-31  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* testcases.sml: Add (old) buggy case from Christopher Dutchyn.
+
+	* sml-proc.el (inferior-sml-font-lock-keywords): Don't add
+	error-regexps if compile.el already highlights them anyway.
+
+	* sml-mode.el (sml-font-lock-symbols-alist): Fix char for "not".
+
+2007-10-31  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* sml-mode.el (sml-def-skeleton): If possible, only expand for
+	lower-case abbrevs and not inside strings or comments.
+	(sml-mlton-typecheck): Typo.
+
+	* sml-proc.el (sml-proc-comint-input-filter-function): New function.
+	(inferior-sml-mode): Use it.
+	(sml-update-cursor): Don't forget errors here any more.
+
+2007-10-31  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* sml-util.el (defmap, defsyntax): Avoid defconst.
+	(flatten): Remove.
+
+	* sml-mode.el (sml-calculate-indentation): Avoid previous-line.
+	(sml-keywords-regexp): Avoid the need for `flatten'.
+	(sml-defuse-jump-to-def): Fix typo.
+
+	* sml-defs.el (sml-syms-re): Don't use `flatten'.
+	(sml-sexp-head-symbols-re, sml-starters-indent-after)
+	(sml-non-nested-of-starter-re): Avoid the need for `flatten'.
+
+	* sml-proc.el (inferior-sml-next-error-hook): New fun.
+	(inferior-sml-mode): Use it.
+
+2007-06-29  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* sml-mode.el (sml-mlton-error-regexp-alist): New var.
+	(sml-mlton-typecheck): Use it.
+	(compilation-error-regexp-alist): Add entries after loading "compile"
+	so that M-x compile works.
+
+	* sml-proc.el (inferior-sml-mode): Make TAB add a " rather than a space
+	at the end of a file name.
+
+2007-06-14  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* sml-mode.el (sml-mode-variables): Set comment-quote-nested instead of
+	comment-nested.  Set comment-end-skip.
+	(sml-first-starter-p): New function.
+	(sml-indent-starter): Use it to fix an indentation bug.
+	(sml-mlton-command, sml-mlton-mainfile): New vars.
+	(sml-mlton-typecheck): New command.
+	(sml-defuse-file): New var.
+	(sml-defuse-def-regexp, sml-defuse-use-regexp-format): New consts.
+	(sml-defuse-file, sml-defuse-symdata-at-point): New functions.
+	(sml-defuse-set-file, sml-defuse-jump-to-def): New commands.
+
+2005-11-20  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* sml-move.el (sml-find-match-forward): Avoid infinite looping if the
+	construct is not properly closed (yet).
+
+2005-11-16  Stefan Monnier  <monnier@iro.umontreal.ca>
+
+	* sml-defs.el (sml-mode-menu): Remove left over obsolete entries.
+
+	* sml-proc.el (inferior-sml-mode): Preserve the menu-bar of the
+	compilation minor mode, if any.
+
 2004-11-24  Stefan Monnier  <monnier@iro.umontreal.ca>
 
 	* Release version 4.0.
@@ -14,9 +98,24 @@
 
 2004-11-14  Stefan Monnier  <monnier@iro.umontreal.ca>
 
+	* sml-move.el (sml-backward-sexp, sml-forward-sexp): Remove unused var.
+
+	* sml-mode.el (sml-calculate-indentation): Remove unused var.
+	(sml-get-indent): Change first arg's meaning.
+	(sml-get-sym-indent): Adjust call.
+	(sml-forms-menu): Simplify.
+	(sml-font-lock-symbols, sml-font-lock-symbols-alist): New vars.
+	(sml-font-lock-compose-symbol, sml-font-lock-symbols-keywords):
+	New funs.
+	(sml-font-lock-keywords): Use them.
+
+	* sml-compat.el (temp-directory): Get rid of warning.
+
 	* Makefile (install_startup): Don't add to load-path any more.
 
 	* sml-proc.el (sml-make-error): Use match-string.
+	(sml-error-regexp-alist): Merge regexps.
+	(sml-update-cursor): Check sml-temp-file is non-nil.
 
 2004-04-21  Stefan Monnier  <monnier@iro.umontreal.ca>
 

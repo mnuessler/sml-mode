@@ -1,11 +1,11 @@
 ;;; sml-proc.el --- Comint based interaction mode for Standard ML.
 
-;; Copyright (C) 1999,2000,03,04  Stefan Monnier
+;; Copyright (C) 1999, 2000, 2003, 2004, 2005, 2007  Stefan Monnier
 ;; Copyright (C) 1994-1997  Matthew J. Morley
 ;; Copyright (C) 1989       Lars Bo Nielsen
 
-;; 1.21
-;; 2004/11/15 03:51:19
+;; $Revision: 3511 $
+;; $Date: 2010-03-04 15:10:43 -0500 (jeu 04 mar 2010) $
 
 ;; ====================================================================
 
@@ -14,7 +14,7 @@
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
-;; published by the Free Software Foundation; either version 2, or (at
+;; published by the Free Software Foundation; either version 3, or (at
 ;; your option) any later version.
 
 ;; This program is distributed in the hope that it will be useful, but
@@ -228,6 +228,7 @@ See `compilation-error-regexp-alist' for a description of the format.")
 ;; font-lock support
 (defconst inferior-sml-font-lock-keywords
   `(;; prompt and following interactive command
+    ;; FIXME: Actually, this should already be taken care of by comint.
     (,(concat "\\(" sml-prompt-regexp "\\)\\(.*\\)")
      (1 font-lock-prompt-face)
      (2 font-lock-command-face keep))
@@ -236,8 +237,9 @@ See `compilation-error-regexp-alist' for a description of the format.")
     ;; SML/NJ's irritating GC messages
     ("^GC #.*" . font-lock-comment-face)
     ;; error messages
-    ,@(mapcar (lambda (ra) (cons (car ra) 'font-lock-warning-face))
-	      sml-error-regexp-alist))
+    ,@(unless (fboundp 'compilation-fake-loc)
+        (mapcar (lambda (ra) (cons (car ra) 'font-lock-warning-face))
+                sml-error-regexp-alist)))
   "Font-locking specification for inferior SML mode.")
 
 (defface font-lock-prompt-face
@@ -308,6 +310,66 @@ If prefix argument ECHO is set, then it only reports on the current state."
       (progn (call-interactively 'run-sml)
 	     (get-buffer-process (current-buffer)))))
 
+(defun sml-proc-comint-input-filter-function (str)
+  ;; `compile.el' in Emacs-22 fails to notice that file location info from
+  ;; errors should be recomputed afresh (without using stale info from
+  ;; earlier compilations).  We used to cause a refresh in sml-send-string,
+  ;; but this doesn't catch the case when the user types commands directly
+  ;; at the prompt.
+  (compilation-forget-errors)       ;Has to run before compilation-fake-loc.
+  (if (and (fboundp 'compilation-fake-loc) sml-temp-file)
+      (compilation-fake-loc (cdr sml-temp-file) (car sml-temp-file)))
+  str)
+
+(defun inferior-sml-next-error-hook ()
+  ;; Try to recognize SML/NJ type error message and to highlight finely the
+  ;; difference between the two types (in case they're large, it's not
+  ;; always obvious to spot it).
+  ;;
+  ;; Sample messages:
+  ;; 
+  ;; Data.sml:31.9-33.33 Error: right-hand-side of clause doesn't agree with function result type [tycon mismatch]
+  ;;   expression:  Hstring
+  ;;   result type:  Hstring * int
+  ;;   in declaration:
+  ;;     des2hs = (fn SYM_ID hs => hs
+  ;;                | SYM_OP hs => hs
+  ;;                | SYM_CHR hs => hs)
+  ;; Data.sml:35.44-35.63 Error: operator and operand don't agree [tycon mismatch]
+  ;;   operator domain: Hstring * Hstring
+  ;;   operand:         (Hstring * int) * (Hstring * int)
+  ;;   in expression:
+  ;;     HSTRING.ieq (h1,h2)
+  ;; vparse.sml:1861.6-1922.14 Error: case object and rules don't agree [tycon mismatch]
+  ;;   rule domain: STConstraints list list option
+  ;;   object: STConstraints list option
+  ;;   in expression:
+  (save-current-buffer
+    (when (and (derived-mode-p 'sml-mode 'inferior-sml-mode)
+               (boundp 'next-error-last-buffer)
+               (bufferp next-error-last-buffer)
+               (set-buffer next-error-last-buffer)
+               (derived-mode-p 'inferior-sml-mode)
+               ;; The position of `point' is not guaranteed :-(
+               (looking-at (concat ".*\\[tycon mismatch\\]\n"
+                                   "  \\(operator domain\\|expression\\|rule domain\\): +")))
+      (ignore-errors (require 'smerge-mode))
+      (if (not (fboundp 'smerge-refine-subst))
+          (remove-hook 'next-error-hook 'inferior-sml-next-error-hook)
+        (save-excursion
+          (let ((b1 (match-end 0))
+                e1 b2 e2)
+            (when (re-search-forward "\n  in \\(expression\\|declaration\\):\n"
+                                     nil t)
+              (setq e2 (match-beginning 0))
+              (when (re-search-backward
+                     "\n  \\(operand\\|result type\\|object\\): +"
+                     b1 t)
+                (setq e1 (match-beginning 0))
+                (setq b2 (match-end 0))
+                (smerge-refine-subst b1 e1 b2 e2
+                                     '((face . smerge-refined-change)))))))))))
+
 (define-derived-mode inferior-sml-mode comint-mode "Inferior-SML"
   "Major mode for interacting with an inferior ML process.
 
@@ -355,6 +417,14 @@ TAB file name completion, as in shell-mode, etc.."
   (setq comint-prompt-regexp sml-prompt-regexp)
   (sml-mode-variables)
 
+  ;; We have to install it globally, 'cause it's run in the *source* buffer :-(
+  (add-hook 'next-error-hook 'inferior-sml-next-error-hook)
+
+  ;; Make TAB add a " rather than a space at the end of a file name.
+  (set (make-local-variable 'comint-completion-addsuffix) '(?/ . ?\"))
+  (add-hook 'comint-input-filter-functions
+            'sml-proc-comint-input-filter-function nil t)
+
   (set (make-local-variable 'font-lock-defaults)
        inferior-sml-font-lock-defaults)
   ;; For sequencing through error messages:
@@ -369,8 +439,12 @@ TAB file name completion, as in shell-mode, etc.."
 	 sml-error-regexp-alist)
     (compilation-minor-mode 1)
     ;; Eliminate compilation-minor-mode's map.
-    (add-to-list 'minor-mode-overriding-map-alist
-		 (cons 'compilation-minor-mode (make-sparse-keymap)))
+    (let ((map (make-sparse-keymap)))
+      (dolist (keys '([menu-bar] [follow-link]))
+        ;; Preserve some of the bindings.
+        (define-key map keys (lookup-key compilation-minor-mode-map keys)))
+      (add-to-list 'minor-mode-overriding-map-alist
+                   (cons 'compilation-minor-mode map)))
     ;; I'm sure people might kill me for that
     (setq compilation-error-screen-columns nil)
     (make-local-variable 'sml-endof-error-alist))
@@ -557,14 +631,16 @@ be executed to change the compiler's working directory\; a trailing
     (comint-send-string proc str)
     (when and-go (switch-to-sml nil))))
 
-(defun sml-compile (command)
+(defun sml-compile (command &optional and-go)
   "Pass a COMMAND to the SML process to compile the current program.
 
 You can then use the command \\[next-error] to find the next error message
 and move to the source code that caused it.
 
 Interactively, prompts for the command if `compilation-read-command' is
-non-nil.  With prefix arg, always prompts."
+non-nil.  With prefix arg, always prompts.
+
+Prefix arg AND-GO also means to `switch-to-sml' afterwards."
   (interactive
    (let* ((dir default-directory)
 	  (cmd "cd \"."))
@@ -610,7 +686,8 @@ non-nil.  With prefix arg, always prompts."
     (setq dir (expand-file-name dir))
     (with-current-buffer (sml-proc-buffer)
       (setq default-directory dir)
-      (sml-send-string (concat (format sml-cd-command dir) "; " command) t t))))
+      (sml-send-string (concat (format sml-cd-command dir) "; " command)
+                       t and-go))))
 
 ;;; PARSING ERROR MESSAGES
 
@@ -625,9 +702,10 @@ non-nil.  With prefix arg, always prompts."
   ;; Update buffer local variable.
   (set-marker sml-error-cursor (1- (process-mark (sml-proc))))
   (setq sml-endof-error-alist nil)
-  (compilation-forget-errors)
-  (if (and (fboundp 'compilation-fake-loc) sml-temp-file)
-      (compilation-fake-loc (cdr sml-temp-file) (car sml-temp-file)))
+  ;; This is now done in comint-input-filter-functions.
+  ;; (compilation-forget-errors)       ;Has to run before compilation-fake-loc.
+  ;; (if (and (fboundp 'compilation-fake-loc) sml-temp-file)
+  ;;     (compilation-fake-loc (cdr sml-temp-file) (car sml-temp-file)))
   (if (markerp compilation-parsing-end)
       (set-marker compilation-parsing-end sml-error-cursor)
     (setq compilation-parsing-end sml-error-cursor)))

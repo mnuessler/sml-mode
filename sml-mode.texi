@@ -1,6 +1,6 @@
 \input texinfo @c -*-texinfo-*-
 
-@comment "@(#)v4_0:sml-mode.texi,v 1.8 2003/01/12 19:19:24 monnier Exp"
+@comment "@(#)$Name$:$Id: sml-mode.texi 3511 2010-03-04 20:10:43Z monnier $"
 
 @comment Documentation for the GNU Emacs SML mode.
 @comment Copyright (C) 1997-1999 Matthew J.@: Morley
@@ -9,7 +9,7 @@
 
 @comment sml-mode is free software; you can redistribute it and/or modify
 @comment it under the terms of the GNU General Public License as published by
-@comment the Free Software Foundation; either version 2 of the License,
+@comment the Free Software Foundation; either version 3 of the License,
 @comment or (at your option) any later version.
 
 @comment sml-mode is distributed in the hope that it will be useful,
@@ -34,7 +34,7 @@
 @center @titlefont{Editing and Running Standard ML}
 @center @titlefont{under GNU Emacs}
 @sp 5
-@center {SML mode, Version v4_0}
+@center {SML mode, Version $Name$}
 @center {August 1999}
 @sp 2
 @author Authors: Matthew J.@: Morley and Stefan Monnier
@@ -46,7 +46,7 @@ Copyright @copyright{} (Anon)
 @sp 1
 @noindent
 GNU General Public License as published by the Free Software Foundation;
-either version 2, or (at your option) any later version.
+either version 3, or (at your option) any later version.
 
 @sp 1
 @noindent
@@ -77,7 +77,7 @@ Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 
 @noindent
 You are looking at the top node of the Info tree documenting
-@sc{sml-mode} (Version v4_0). Not all functions are documented here, but
+@sc{sml-mode} (Version $Name$). Not all functions are documented here, but
 those that aren't you probably won't miss. All commands and settable
 variables have built-in documentation, as per usual Emacs conventions.
 @end ifinfo
@@ -134,7 +134,7 @@ made available under the liberal terms of the GNU General Public
 License.
 
 GNU General Public License as published by the Free Software Foundation;
-either version 2, or (at your option) any later version.
+either version 3, or (at your option) any later version.
 
 SML mode is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of

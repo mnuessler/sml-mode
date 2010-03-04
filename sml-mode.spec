@@ -3,7 +3,7 @@
 
 Summary:	Emacs mode for editing Standard ML source code
 Name:		sml-mode
-Version:	v4_0
+Version:	$Name$
 Release:	0.1
 Group:		Applications/Editors
 Copyright:	GPL

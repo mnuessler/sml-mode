@@ -1,6 +1,6 @@
 ;;; sml-mode.el --- Major mode for editing (Standard) ML
 
-;; Copyright (C) 1999,2000,2004  Stefan Monnier
+;; Copyright (C) 1999,2000,2004,2007,2010  Stefan Monnier
 ;; Copyright (C) 1994-1997  Matthew J. Morley
 ;; Copyright (C) 1989       Lars Bo Nielsen
 
@@ -13,15 +13,15 @@
 ;;      (Stefan Monnier) monnier@cs.yale.edu
 ;; Maintainer: (Stefan Monnier) monnier+lists/emacs/sml@flint.cs.yale.edu
 ;; Keywords: SML
-;; 1.35
-;; 2004/11/23 05:13:59
+;; $Revision: 3510 $
+;; $Date: 2010-03-04 15:07:06 -0500 (jeu 04 mar 2010) $
 
 ;; This file is not part of GNU Emacs, but it is distributed under the
 ;; same conditions.
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
-;; published by the Free Software Foundation; either version 2, or (at
+;; published by the Free Software Foundation; either version 3, or (at
 ;; your option) any later version.
 
 ;; This program is distributed in the hope that it will be useful, but
@@ -78,7 +78,7 @@
 ;;; VARIABLES CONTROLLING INDENTATION
 
 (defcustom sml-indent-level 4
-  "*Indentation of blocks in ML (see also `sml-structure-indent')."
+  "Indentation of blocks in ML (see also `sml-indent-rule')."
   :group 'sml
   :type '(integer))
 
@@ -159,13 +159,13 @@ Full documentation will be available after autoloading the function."))
 ;; font-lock setup
 
 (defconst sml-keywords-regexp
-  (sml-syms-re "abstraction" "abstype" "and" "andalso" "as" "before" "case"
-	       "datatype" "else" "end" "eqtype" "exception" "do" "fn"
-	       "fun" "functor" "handle" "if" "in" "include" "infix"
-	       "infixr" "let" "local" "nonfix" "of" "op" "open" "orelse"
-	       "overload" "raise" "rec" "sharing" "sig" "signature"
-	       "struct" "structure" "then" "type" "val" "where" "while"
-	       "with" "withtype" "o")
+  (sml-syms-re '("abstraction" "abstype" "and" "andalso" "as" "before" "case"
+                 "datatype" "else" "end" "eqtype" "exception" "do" "fn"
+                 "fun" "functor" "handle" "if" "in" "include" "infix"
+                 "infixr" "let" "local" "nonfix" "of" "op" "open" "orelse"
+                 "overload" "raise" "rec" "sharing" "sig" "signature"
+                 "struct" "structure" "then" "type" "val" "where" "while"
+                 "with" "withtype" "o"))
   "A regexp that matches any and all keywords of SML.")
 
 (defconst sml-tyvarseq-re
@@ -217,7 +217,7 @@ and `unicode'."
 	      (cons "andalso" (decode-char 'ucs 8896))
 	      (cons "orelse" (decode-char 'ucs 8897))
 	      ;; (cons "as" (decode-char 'ucs 8801))
-	      (cons "not" (decode-char 'ucs 160))
+	      (cons "not" (decode-char 'ucs 172))
 	      (cons "div" (decode-char 'ucs 247))
 	      (cons "*" (decode-char 'ucs 215))
 	      (cons "o"  (decode-char 'ucs 9675))
@@ -387,7 +387,6 @@ Regexp match data 0 points to the chars."
 
 ;;; MORE CODE FOR SML-MODE
 
-;;;###autoload (add-to-list 'load-path (file-name-directory load-file-name))
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.s\\(ml\\|ig\\)\\'" . sml-mode))
 
@@ -417,16 +416,13 @@ This mode runs `sml-mode-hook' just before exiting.
 (defun sml-mode-variables ()
   (set-syntax-table sml-mode-syntax-table)
   (setq local-abbrev-table sml-mode-abbrev-table)
-  ;; A paragraph is separated by blank lines or ^L only.
-  
   (set (make-local-variable 'indent-line-function) 'sml-indent-line)
   (set (make-local-variable 'comment-start) "(* ")
   (set (make-local-variable 'comment-end) " *)")
-  (set (make-local-variable 'comment-nested) t)
-  ;;(set (make-local-variable 'block-comment-start) "* ")
-  ;;(set (make-local-variable 'block-comment-end) "")
-  ;; (set (make-local-variable 'comment-column) 40)
-  (set (make-local-variable 'comment-start-skip) "(\\*+\\s-*"))
+  (set (make-local-variable 'comment-start-skip) "(\\*+\\s-*")
+  (set (make-local-variable 'comment-end-skip) "\\s-*\\*+)")
+  ;; No need to quote nested comments markers.
+  (set (make-local-variable 'comment-quote-nested) nil))
 
 (defun sml-funname-of-and ()
   "Name of the function this `and' defines, or nil if not a function.
@@ -562,14 +558,13 @@ If anyone has a good algorithm for this..."
 
 	;; Continued string ? (Added 890113 lbn)
 	(and (looking-at "\\\\")
-	     (save-excursion
-	       (if (save-excursion (previous-line 1)
-				   (beginning-of-line)
-				   (looking-at "[\t ]*\\\\"))
-		   (progn (previous-line 1) (current-indentation))
-		 (if (re-search-backward "[^\\\\]\"" nil t)
-		     (1+ (current-column))
-		   0))))
+             (or (save-excursion (forward-line -1)
+                                 (if (looking-at "[\t ]*\\\\")
+                                     (current-indentation)))
+                 (save-excursion
+                   (if (re-search-backward "[^\\\\]\"" nil t)
+                       (1+ (current-column))
+                     0))))
 
 	;; Closing parens.  Could be handled below with `sml-indent-relative'?
 	(and (looking-at "\\s)")
@@ -594,6 +589,16 @@ If anyone has a good algorithm for this..."
 (defsubst sml-bolp ()
   (save-excursion (skip-chars-backward " \t|") (bolp)))
 
+(defun sml-first-starter-p ()
+  "Non-nil if starter at point is immediately preceded by let/local/in/..."
+  (save-excursion
+    (let ((sym (unless (save-excursion (sml-backward-arg))
+                 (sml-backward-spaces)
+                 (sml-backward-sym))))
+      (if (member sym '(";" "d=")) (setq sym nil))
+      sym)))
+
+
 (defun sml-indent-starter (orig-sym)
   "Return the indentation to use for a symbol in `sml-starters-syms'.
 Point should be just before the symbol ORIG-SYM and is not preserved."
@@ -604,9 +609,10 @@ Point should be just before the symbol ORIG-SYM and is not preserved."
     (if sym (sml-get-sym-indent sym)
       ;; FIXME: this can take a *long* time !!
       (setq sym (sml-find-matching-starter sml-starters-syms))
-      ;; Don't align with `and' because it might be specially indented.
-      (if (and (or (equal orig-sym "and") (not (equal sym "and")))
-	       (sml-bolp))
+      (if (or (sml-first-starter-p)
+              ;; Don't align with `and' because it might be specially indented.
+              (and (or (equal orig-sym "and") (not (equal sym "and")))
+                   (sml-bolp)))
 	  (+ (current-column)
 	     (if (and sml-rightalign-and (equal orig-sym "and"))
 		 (- (length sym) 3) 0))
@@ -849,6 +855,7 @@ signature, structure, and functor by default.")
 (defmacro sml-def-skeleton (name interactor &rest elements)
   (when (fboundp 'define-skeleton)
     (let ((fsym (intern (concat "sml-form-" name))))
+      ;; TODO: don't do the expansion in comments and strings.
       `(progn
 	 (add-to-list 'sml-forms-alist ',(cons name fsym))
 	 (condition-case err
@@ -856,6 +863,11 @@ signature, structure, and functor by default.")
 	     (define-abbrev sml-mode-abbrev-table ,name "" ',fsym nil 'system)
 	   (wrong-number-of-arguments
 	    (define-abbrev sml-mode-abbrev-table ,name "" ',fsym)))
+         (when (fboundp 'abbrev-put)
+           (let ((abbrev (abbrev-symbol ,name sml-mode-abbrev-table)))
+             (abbrev-put abbrev :case-fixed t)
+             (abbrev-put abbrev :enable-function
+                         (lambda () (not (nth 8 (syntax-ppss)))))))
 	 (define-skeleton ,fsym
 	   ,(format "SML-mode skeleton for `%s..' expressions" name)
 	   ,interactor
@@ -974,9 +986,119 @@ See also `edit-kbd-macro' which is bound to \\[edit-kbd-macro]."
     (message "Macro bound to %s" fsym)
     (add-to-list 'sml-forms-alist (cons name fsym))))
 
-;;;;
-;;;;  SML/NJ's Compilation Manager support
-;;;;
+;;;
+;;; MLton support
+;;;
+
+(defvar sml-mlton-command "mlton"
+  "Command to run MLton.   Can include arguments.")
+
+(defvar sml-mlton-mainfile nil)
+
+(defconst sml-mlton-error-regexp-alist
+  ;; I wish they just changed MLton to use one of the standard
+  ;; error formats.
+  `(("^\\(?:Error\\|\\(Warning\\)\\): \\(.+\\) \\([0-9]+\\)\\.\\([0-9]+\\)\\.$"
+     2 3 4
+     ;; If subgroup 1 matched, then it's a warning, otherwise it's an error.
+     ,@(if (fboundp 'compilation-fake-loc) '((1))))))
+
+(eval-after-load "compile"
+  '(dolist (x sml-mlton-error-regexp-alist)
+     (add-to-list 'compilation-error-regexp-alist x)))
+
+(defun sml-mlton-typecheck (mainfile)
+  "typecheck using MLton."
+  (interactive
+   (list (if (and mainfile (not current-prefix-arg))
+             mainfile
+           (read-file-name "Main file: "))))
+  (save-some-buffers)
+  (require 'compile)
+  (dolist (x sml-mlton-error-regexp-alist)
+    (add-to-list 'compilation-error-regexp-alist x))
+  (with-current-buffer (find-file-noselect mainfile)
+    (compile (concat sml-mlton-command
+                     " -stop tc "       ;Stop right after type checking.
+                     (shell-quote-argument
+                      (file-relative-name buffer-file-name))))))
+
+;;;
+;;; MLton's def-use info.
+;;;
+
+(defvar sml-defuse-file nil)
+
+(defun sml-defuse-file ()
+  (or sml-defuse-file (sml-defuse-set-file)))
+
+(defun sml-defuse-set-file ()
+  "Specify the def-use file to use."
+  (interactive)
+  (setq sml-defuse-file (read-file-name "Def-use file: ")))
+
+(defun sml-defuse-symdata-at-point ()
+  (save-excursion
+    (sml-forward-sym)
+    (let ((symname (sml-backward-sym)))
+      (if (equal symname "op")
+          (save-excursion (setq symname (sml-forward-sym))))
+      (when (string-match "op " symname)
+        (setq symname (substring symname (match-end 0)))
+        (forward-word)
+        (sml-forward-spaces))
+      (list symname
+            ;; Def-use files seem to count chars, not columns.
+            ;; We hope here that they don't actually count bytes.
+            ;; Also they seem to start counting at 1.
+            (1+ (- (point) (progn (beginning-of-line) (point))))
+            (save-restriction
+              (widen) (1+ (count-lines (point-min) (point))))
+            buffer-file-name))))
+
+(defconst sml-defuse-def-regexp
+  "^[[:alpha:]]+ \\([^ \n]+\\) \\(.+\\) \\([0-9]+\\)\\.\\([0-9]+\\)$")
+(defconst sml-defuse-use-regexp-format "^    %s %d\\.%d $")
+
+(defun sml-defuse-jump-to-def ()
+  "Jump to the definition corresponding to the symbol at point."
+  (interactive)
+  (let ((symdata (sml-defuse-symdata-at-point)))
+    (if (null (car symdata))
+        (error "Not on a symbol")
+      (with-current-buffer (find-file-noselect (sml-defuse-file))
+        (goto-char (point-min))
+        (unless (re-search-forward
+                 (format sml-defuse-use-regexp-format
+                         (concat "\\(?:"
+                                 ;; May be an absolute file name.
+                                 (regexp-quote (nth 3 symdata))
+                                 "\\|"
+                                 ;; Or a relative file name.
+                                 (regexp-quote (file-relative-name
+                                                (nth 3 symdata)))
+                                 "\\)")
+                         (nth 2 symdata)
+                         (nth 1 symdata))
+                 nil t)
+          ;; FIXME: This is typically due to editing: any minor editing will
+          ;; mess everything up.  We should try to fail more gracefully.
+          (error "Def-use info not found"))
+        (unless (re-search-backward sml-defuse-def-regexp nil t)
+          ;; This indicates a bug in this code.
+          (error "Internal failure while looking up def-use"))
+        (unless (equal (match-string 1) (nth 0 symdata))
+          ;; FIXME: This again is most likely due to editing.
+          (error "Incoherence in the def-use info found"))
+        (let ((line (string-to-number (match-string 3)))
+              (char (string-to-number (match-string 4))))
+          (pop-to-buffer (find-file-noselect (match-string 2)))
+          (goto-line line)
+          (forward-char (1- char)))))))
+
+;;;
+;;; SML/NJ's Compilation Manager support
+;;;
 
 (defvar sml-cm-mode-syntax-table sml-mode-syntax-table)
 (defvar sml-cm-font-lock-keywords
@@ -984,8 +1106,9 @@ See also `edit-kbd-macro' which is bound to \\[edit-kbd-macro]."
 				"functor" "signature" "funsig") t)
 	    "\\>")))
 ;;;###autoload
-(add-to-list 'completion-ignored-extensions "CM/")
 (add-to-list 'completion-ignored-extensions ".cm/")
+;; This was used with the old compilation manager.
+(add-to-list 'completion-ignored-extensions "CM/")
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.cm\\'" . sml-cm-mode))
 ;;;###autoload
@@ -995,9 +1118,9 @@ See also `edit-kbd-macro' which is bound to \\[edit-kbd-macro]."
   (set (make-local-variable 'font-lock-defaults)
        '(sml-cm-font-lock-keywords nil t nil nil)))
 
-;;;;
-;;;; ML-Lex support
-;;;;
+;;;
+;;; ML-Lex support
+;;;
 
 (defvar sml-lex-font-lock-keywords
   (append
@@ -1012,9 +1135,9 @@ See also `edit-kbd-macro' which is bound to \\[edit-kbd-macro]."
   "Major Mode for editing ML-Lex files."
   (set (make-local-variable 'font-lock-defaults) sml-lex-font-lock-defaults))
 
-;;;;
-;;;; ML-Yacc support
-;;;;
+;;;
+;;; ML-Yacc support
+;;;
 
 (defface sml-yacc-bnf-face
   '((t (:foreground "darkgreen")))

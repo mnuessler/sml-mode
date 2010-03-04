@@ -1,5 +1,5 @@
-Ceci est le fichier Info sml-mode.info, produit par Makeinfo version
-4.3 à partir sml-mode.texi.
+This is sml-mode.info, produced by makeinfo version 4.13 from
+sml-mode.texi.
 
 INFO-DIR-SECTION Emacs
 START-INFO-DIR-ENTRY
@@ -9,11 +9,11 @@ END-INFO-DIR-ENTRY
 
 File: sml-mode.info,  Node: Top,  Next: Copying,  Prev: (dir),  Up: (dir)
 
-SML Mode Info
-*************
+1 SML Mode Info
+***************
 
 You are looking at the top node of the Info tree documenting SML-MODE
-(Version v4_0). Not all functions are documented here, but those that
+(Version $Name$). Not all functions are documented here, but those that
 aren't you probably won't miss. All commands and settable variables
 have built-in documentation, as per usual Emacs conventions.
 
@@ -56,14 +56,14 @@ Configuration
 
 File: sml-mode.info,  Node: Copying,  Next: Introduction,  Prev: Top,  Up: Top
 
-Copying
-*******
+2 Copying
+*********
 
 You can freely copy, modify and redistribute SML mode because it's made
 available under the liberal terms of the GNU General Public License.
 
    GNU General Public License as published by the Free Software
-Foundation; either version 2, or (at your option) any later version.
+Foundation; either version 3, or (at your option) any later version.
 
    SML mode is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -77,8 +77,8 @@ Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 
 File: sml-mode.info,  Node: Introduction,  Next: SML Mode,  Prev: Copying,  Up: Top
 
-Introduction
-************
+3 Introduction
+**************
 
 SML mode is a major mode for Emacs for editing Standard ML. It has some
 novel bugs, and some nice features:
@@ -118,12 +118,12 @@ novel bugs, and some nice features:
 
 File: sml-mode.info,  Node: Contributors,  Next: Getting Started,  Prev: Introduction,  Up: Introduction
 
-Contributors to the SML mode
-============================
+3.1 Contributors to the SML mode
+================================
 
-   Contributions to the package are welcome.  I have limited time to
-work on this project, but I will gladly add any code that you
-contribute to me to this package.
+Contributions to the package are welcome.  I have limited time to work
+on this project, but I will gladly add any code that you contribute to
+me to this package.
 
    Although the history of sml-mode is obscure, it seems that the
 following persons have made contributions to sml-mode:
@@ -156,8 +156,8 @@ following persons have made contributions to sml-mode:
 
 File: sml-mode.info,  Node: Getting Started,  Next: Getting Help,  Prev: Contributors,  Up: Introduction
 
-Getting started
-===============
+3.2 Getting started
+===================
 
 With luck your system administrator will have installed SML mode
 somewhere convenient, so it will just magically all work--you can skip
@@ -196,8 +196,8 @@ runs somewhat faster.
 
 File: sml-mode.info,  Node: Getting Help,  Prev: Getting Started,  Up: Introduction
 
-Help!
-=====
+3.3 Help!
+=========
 
 You're reading it. Apart from the on-line info tree (`C-h i' is the
 Emacs key to enter the `info' system--you should follow the brief
@@ -237,8 +237,8 @@ hierarchy.)
 
 File: sml-mode.info,  Node: SML Mode,  Next: Interaction Mode,  Prev: Introduction,  Up: Top
 
-Editing with SML Mode
-*********************
+4 Editing with SML Mode
+***********************
 
 Now SML mode provides just a few additional editing commands. Most of
 the work has gone into implementing the indentation algorithm which, if
@@ -258,10 +258,12 @@ forms (macros or templates).
 
 File: sml-mode.info,  Node: Basics,  Next: Indentation,  Prev: SML Mode,  Up: SML Mode
 
-On entering SML mode
-====================
+4.1 On entering SML mode
+========================
 
- - Command: sml-mode
+
+
+ -- Command: sml-mode
      This switches a buffer into SML mode. This is a _major mode_ in
      Emacs. To get out of SML mode the buffer's major mode must be set
      to something else, like text-mode. *Note Getting Started::, for
@@ -273,7 +275,7 @@ is non-nil it binds a list of Emacs Lisp functions to be run in some
 order (usually left to right). You can customise SML mode with these
 hooks:
 
- - Hook: sml-mode-hook
+ -- Hook: sml-mode-hook
      Default: `nil'
 
      This is run every time a new SML mode buffer is created (or if you
@@ -283,30 +285,30 @@ hooks:
 
 File: sml-mode.info,  Node: Indentation,  Next: Magic Insertion,  Prev: Basics,  Up: SML Mode
 
-Automatic indentation
-=====================
+4.2 Automatic indentation
+=========================
 
 ML is a complicated language to parse, let alone compile. The
 indentation algorithm is a little wooden (for some tastes), and the best
 advice is not to fight it! There are several variables that can be
 adjusted to control the indentation algorithm (*note Customising SML
-Mode: SML Mode Defaults., below).
+Mode: SML Mode Defaults, below).
 
- - Command: indent-for-tab-command
-     Key: <TAB>
+ -- Command: indent-for-tab-command
+     Key: <TAB> 
 
      This command indents the current line. If you set the indentation
      of the previous line by hand, `indent-for-tab-command' will indent
      relative to this setting.
 
- - Command: indent-region
-     Key: `C-M-\'
+ -- Command: indent-region
+     Key: `C-M-\' 
 
      Indent the current region. Be patient if the region is large (like
      the whole buffer).
 
- - Command: sml-back-to-outer-indent
-     Key: `M-<TAB>'
+ -- Command: sml-back-to-outer-indent
+     Key: `M-<TAB>' 
 
      Unindents the line to the next outer level of indentation.
 
@@ -345,15 +347,15 @@ with `set-comment-column' (on `C-x ;' by default).
 
 File: sml-mode.info,  Node: Magic Insertion,  Next: SML Mode Defaults,  Prev: Indentation,  Up: SML Mode
 
-Electric features
-=================
+4.3 Electric features
+=====================
 
 Electric keys are generally pretty irritating, so those provided by SML
 mode are fairly muted. The only truly electric key is `;', and this has
 to be enabled to take effect.
 
- - Command: sml-electric-pipe
-     Key: `M-|'
+ -- Command: sml-electric-pipe
+     Key: `M-|' 
 
      When the point is in a `case' statement this opens a new line,
      indents and inserts `| =>' leaving point just before the double
@@ -362,29 +364,29 @@ to be enabled to take effect.
      appropriate column. Generally, try it whenever a `|' is
      wanted--you'll like it!
 
- - Command: sml-electric-space
-     Key: `M-SPC'
+ -- Command: sml-electric-space
+     Key: `M-SPC' 
 
      When the point is after a keyword like `let', this inserts the
      corresponding predefined skeleton if one exists.  Else it just
      inserts a space.  Another way to insert those skeletons is to use
      `sml-insert-form', described below.
 
- - Command: sml-electric-semi
-     Key: `;'
+ -- Command: sml-electric-semi
+     Key: `;' 
 
      Just inserts a semi-colon, usually. The behaviour of this command
      is governed by the variable `sml-electric-semi-mode'.
 
- - Variable: sml-electric-semi-mode
+ -- Variable: sml-electric-semi-mode
      Default: `nil'
 
      If this variable is `nil', `sml-electric-semi' just inserts a
      semi-colon, otherwise it inserts a semi-colon and a newline, and
      indents the newline for SML.
 
- - Command: sml-insert-form
-     Key: `C-c <RET>'
+ -- Command: sml-insert-form
+     Key: `C-c <RET>' 
 
      Interactive short-cut to insert common ML forms (a.k.a. macros, or
      templates). Recognised forms are `let', `local', `case', `abstype',
@@ -398,14 +400,14 @@ to be enabled to take effect.
      C-c <RET>') the command will insert a newline first, indent, and
      then insert the template.
 
-   `sml-insert-form' is also extensible: see *Note Configuration:: for
+   `sml-insert-form' is also extensible: see *note Configuration:: for
 further details.
 
 
 File: sml-mode.info,  Node: SML Mode Defaults,  Prev: Magic Insertion,  Up: SML Mode
 
-Indentation defaults
-====================
+4.4 Indentation defaults
+========================
 
 Several variables try to control the indentation algorithm and other
 features of SML mode.  Most of them are still in flux so they are not
@@ -413,7 +415,7 @@ described here yet.  If the default values are not acceptable you can
 set these variables permanently in your `.emacs' file. *Note
 Configuration::, for details and examples.
 
- - Variable: sml-indent-level
+ -- Variable: sml-indent-level
      Default: `4'
 
      This variable controls the block indentation level.
@@ -421,8 +423,8 @@ Configuration::, for details and examples.
 
 File: sml-mode.info,  Node: Interaction Mode,  Next: Configuration,  Prev: SML Mode,  Up: Top
 
-Running ML under Emacs
-**********************
+5 Running ML under Emacs
+************************
 
 The most useful feature of SML mode is that it provides a convenient
 interface to the compiler. How serious users of ML put up with a
@@ -452,8 +454,8 @@ comes with Emacs and XEmacs.
 
 File: sml-mode.info,  Node: Running ML,  Next: ML Interaction,  Prev: Interaction Mode,  Up: Interaction Mode
 
-Starting the compiler
-=====================
+5.1 Starting the compiler
+=========================
 
 Start your favourite ML compiler with the command
 
@@ -468,13 +470,13 @@ editor and compiler (*note ML Interaction::).
    The name of the ML compiler is the first thing you should know how to
 specify:
 
- - Variable: sml-program-name
+ -- Variable: sml-program-name
      Default: `"sml"'
 
      The program to run as ML. You might need to specify the full path
      name of the program.
 
- - Variable: sml-default-arg
+ -- Variable: sml-default-arg
      Default: `""'
 
      Useful for Poly/ML users who may supply a database file, or others
@@ -495,13 +497,13 @@ set this in your `.emacs' with, e.g.:
 
      (setq sml-program-name "nj-sml")
 
- - Command: run-sml
+ -- Command: run-sml
      Launches ML as an inferior process in another buffer; if an ML
      process already exists, just switch to the process buffer. A
      prefix argument allows you to edit the command line to specify the
      program, and any command line options.
 
- - Hook: inferior-sml-mode-hook
+ -- Hook: inferior-sml-mode-hook
      Default: `nil'
 
      `M-x run-sml' runs `comint-mode-hook' and `inferior-sml-mode-hook'
@@ -509,8 +511,8 @@ set this in your `.emacs' with, e.g.:
      `inferior-sml-mode-hook' to set any `comint' buffer-local
      configurations for SML mode you like.
 
- - Command: switch-to-sml
-     Key: `C-c C-s'
+ -- Command: switch-to-sml
+     Key: `C-c C-s' 
 
      Switch from the SML buffer to the interaction buffer. By default
      point will be placed at the end of the process buffer, but a
@@ -519,7 +521,7 @@ set this in your `.emacs' with, e.g.:
      get an error message to the effect that there's no current process
      buffer.
 
- - Command: sml-cd
+ -- Command: sml-cd
      When started, the ML compiler's default working directory is the
      current buffer's default directory. This command allows the working
      directory to be changed, if the compiler can do this. The variable
@@ -529,16 +531,16 @@ set this in your `.emacs' with, e.g.:
 
 File: sml-mode.info,  Node: ML Interaction,  Next: Tracking Errors,  Prev: Running ML,  Up: Interaction Mode
 
-Speaking to the compiler
-========================
+5.2 Speaking to the compiler
+============================
 
 Several commands are defined for sending program fragments to the
 running compiler. Each of the following commands takes a prefix argument
 that will switch the input focus to the process buffer afterwards
 (leaving point at the end of the buffer):
 
- - Command: sml-load-file
-     Key: `C-c C-l'
+ -- Command: sml-load-file
+     Key: `C-c C-l' 
 
      Send a `use file' command to the current ML process. The variable
      `sml-use-command' is used to define the correct template for the
@@ -546,23 +548,23 @@ that will switch the input focus to the process buffer afterwards
      the file associated with the current buffer, or the last file
      loaded if you are in the interaction buffer.
 
- - Command: sml-send-region
-     Key: `C-c C-r'
+ -- Command: sml-send-region
+     Key: `C-c C-r' 
 
      Send the current region of text in the SML buffer.
      `sml-send-region-and-go' is a similar command for you to bind in
      SML mode if you wish: it'll send the region and then switch-to-sml.
 
- - Command: sml-send-buffer
-     Key: `C-c C-b'
+ -- Command: sml-send-buffer
+     Key: `C-c C-b' 
 
      Send the contents of the current buffer to ML.
 
 
 File: sml-mode.info,  Node: Tracking Errors,  Next: Process Defaults,  Prev: ML Interaction,  Up: Interaction Mode
 
-Finding errors
-==============
+5.3 Finding errors
+==================
 
 SML mode provides one customisable function for locating the source
 position of errors reported by the compiler. This should work whether
@@ -570,18 +572,18 @@ you type `use "puzzle.sml";' into the interaction buffer, or use one of
 the mechanisms provided for sending programs directly to the
 compiler--*note ML Interaction::.
 
- - Command: next-error
-     Key: `C-x`'
+ -- Command: next-error
+     Key: `C-x`' 
 
      Jump to the source location of the next error reported by the
      compiler.  All the usual error-navigation commands are available,
-     see *note Compilation Mode: (emacs)Compilation Mode..
+     see *note Compilation Mode: (emacs)Compilation Mode.
 
 
 File: sml-mode.info,  Node: Process Defaults,  Prev: Tracking Errors,  Up: Interaction Mode
 
-Process defaults
-================
+5.4 Process defaults
+====================
 
 The process interaction code is independent of the compiler used,
 deliberately, so SML mode will work with a variety of ML compilers and
@@ -590,21 +592,21 @@ to be set correctly before SML mode can speak to the compiler.  Things
 are by default set up for Standard ML of New Jersey, but switching to a
 new system is quite easy.
 
- - Variable: sml-use-command
+ -- Variable: sml-use-command
      Default: `"use \"%s\""'
 
      Use file command template. Emacs will replace the `%s' with a file
      name. Note that Emacs requires double quote characters inside
      strings to be quoted with a backslash.
 
- - Variable: sml-cd-command
+ -- Variable: sml-cd-command
      Default: `"OS.FileSys.chDir \"%s\""'
 
      Compiler command to change the working directory. Not all ML
      systems support this feature (well, Edinburgh (core) ML didn't),
      but they should.
 
- - Variable: sml-prompt-regexp
+ -- Variable: sml-prompt-regexp
      Default: `"^[-=>#] *"'
 
      Matches the ML compiler's prompt: `comint' uses this for various
@@ -613,7 +615,7 @@ new system is quite easy.
    To customise error reportage for different ML compilers you need to
 set two further variables before `next-error' can be useful:
 
- - Variable: sml-error-regexp-alist
+ -- Variable: sml-error-regexp-alist
      Alist that specifies how to match errors in compiler output.  Each
      elt has the form (REGEXP FILE-IDX LINE-IDX [COLUMN-IDX
      FILE-FORMAT...])  If REGEXP matches, the FILE-IDX'th subexpression
@@ -627,8 +629,8 @@ set two further variables before `next-error' can be useful:
 
 File: sml-mode.info,  Node: Configuration,  Prev: Interaction Mode,  Up: Top
 
-Configuration Summary
-*********************
+6 Configuration Summary
+***********************
 
 This (sort of pedagogic) section gives more information on how to
 configure SML mode: menus, key bindings, hooks and highlighting are
@@ -644,8 +646,8 @@ discussed, along with a few other random topics.
 
 File: sml-mode.info,  Node: Hooks,  Next: Key Bindings,  Prev: Configuration,  Up: Configuration
 
-Hooks
-=====
+6.1 Hooks
+=========
 
 One way to set SML mode variables (*note Indentation Defaults: SML Mode
 Defaults.), and other defaults, is through the `sml-mode-hook' in your
@@ -656,15 +658,13 @@ Defaults.), and other defaults, is through the `sml-mode-hook' in your
        (setq words-include-escape t)    ; \ loses word break status
        (setq indent-tabs-mode nil))     ; never ever indent with tabs
      (add-hook 'sml-mode-hook 'my-sml-mode-hook)
-
-The body of `my-sml-mode-hook' is a sequence of assignments. In this
+   The body of `my-sml-mode-hook' is a sequence of assignments. In this
 case it is not really necessary to set `sml-indent-level' in a hook
 because this variable is global (most SML mode variables are). With
 similar effect:
 
      (setq sml-indent-level 2)
-
-anywhere in your `.emacs' file. The variable `indent-tabs-mode' is
+   anywhere in your `.emacs' file. The variable `indent-tabs-mode' is
 automatically made local to the current buffer whenever it is set
 explicitly, so it _must_ be set in a hook if you always want SML mode
 to behave like this.
@@ -678,17 +678,16 @@ variables meaningful to `comint'-based packages:
        (setq      comint-scroll-show-maximum-output t)
        (setq      comint-input-autoexpand nil))
      (add-hook 'inferior-sml-mode-hook 'my-inf-sml-mode-hook)
-
-Again, the body is a sequence of assignments. Unless you run several ML
-compilers simultaneously under one Emacs, this hook will normally only
-get run once. You might want to look up the documentation (`C-h v' and
-`C-h f') for these buffer-local `comint' things.
+   Again, the body is a sequence of assignments. Unless you run several
+ML compilers simultaneously under one Emacs, this hook will normally
+only get run once. You might want to look up the documentation (`C-h v'
+and `C-h f') for these buffer-local `comint' things.
 
 
 File: sml-mode.info,  Node: Key Bindings,  Next: Highlighting,  Prev: Hooks,  Up: Configuration
 
-Key bindings
-============
+6.2 Key bindings
+================
 
 Customisation (in Emacs) usually entails putting favourite commands on
 easily remembered keys. Two `keymaps' are defined in SML mode: one is
@@ -705,8 +704,7 @@ global (variables):
      (defun my-sml-mode-hook () "Global defaults for SML mode"
        (define-key sml-mode-map "\C-cd" 'sml-cd))
      (add-hook 'sml-mode-hook 'my-sml-mode-hook)
-
-This has the effect of binding `sml-cd' to the key `C-c d'.  If you
+   This has the effect of binding `sml-cd' to the key `C-c d'.  If you
 want the same behaviour from `C-c d' in the ML buffer:
 
      (defun my-inf-sml-mode-hook () "Global defaults for inferior SML mode"
@@ -723,8 +721,8 @@ already done so.
 
 File: sml-mode.info,  Node: Highlighting,  Next: Advanced Topics,  Prev: Key Bindings,  Up: Configuration
 
-Syntax colouring
-================
+6.3 Syntax colouring
+====================
 
 Highlighting is very handy for picking out keywords in the program text,
 spotting misspelled kewyords, and, if you have Emacs' `ps-print'
@@ -748,8 +746,8 @@ font-lock documentation if you encounter problems.
 
 File: sml-mode.info,  Node: Advanced Topics,  Prev: Highlighting,  Up: Configuration
 
-Advanced Topics
-===============
+6.4 Advanced Topics
+===================
 
            _These forms are bloody useless; can't we have better ones?_
 
@@ -807,27 +805,28 @@ File: sml-mode.info,  Node: Command Index,  Next: Variable Index,  Up: Top
 Command Index
 *************
 
+ [index ]
 * Menu:
 
-* indent-for-tab-command:                Indentation.
-* indent-region:                         Indentation.
-* inferior-sml-mode:                     Interaction Mode.
-* next-error:                            Tracking Errors.
-* run-sml:                               Running ML.
-* sml-back-to-outer-indent:              Indentation.
-* sml-cd:                                Running ML.
-* sml-electric-pipe:                     Magic Insertion.
-* sml-electric-semi:                     Magic Insertion.
-* sml-electric-space:                    Magic Insertion.
-* sml-indent-level:                      SML Mode Defaults.
-* sml-insert-form:                       Magic Insertion.
-* sml-load-file:                         ML Interaction.
-* sml-mode:                              Basics.
-* sml-mode-info:                         Getting Help.
-* sml-send-buffer:                       ML Interaction.
-* sml-send-region:                       ML Interaction.
-* sml-send-region-and-go:                ML Interaction.
-* switch-to-sml:                         Running ML.
+* indent-for-tab-command:                Indentation.          (line 13)
+* indent-region:                         Indentation.          (line 20)
+* inferior-sml-mode:                     Interaction Mode.     (line 21)
+* next-error:                            Tracking Errors.      (line 13)
+* run-sml:                               Running ML.           (line 47)
+* sml-back-to-outer-indent:              Indentation.          (line 26)
+* sml-cd:                                Running ML.           (line 71)
+* sml-electric-pipe:                     Magic Insertion.      (line 11)
+* sml-electric-semi:                     Magic Insertion.      (line 29)
+* sml-electric-space:                    Magic Insertion.      (line 21)
+* sml-indent-level:                      SML Mode Defaults.    (line 13)
+* sml-insert-form:                       Magic Insertion.      (line 42)
+* sml-load-file:                         ML Interaction.       (line 12)
+* sml-mode:                              Basics.               (line  9)
+* sml-mode-info:                         Getting Help.         (line 31)
+* sml-send-buffer:                       ML Interaction.       (line 28)
+* sml-send-region:                       ML Interaction.       (line 21)
+* sml-send-region-and-go:                ML Interaction.       (line 21)
+* switch-to-sml:                         Running ML.           (line 61)
 
 
 File: sml-mode.info,  Node: Variable Index,  Next: Key Index,  Prev: Command Index,  Up: Top
@@ -835,19 +834,20 @@ File: sml-mode.info,  Node: Variable Index,  Next: Key Index,  Prev: Command Ind
 Variable Index
 **************
 
+ [index ]
 * Menu:
 
-* inferior-sml-mode-hook:                Running ML.
-* sml-cd-command:                        Process Defaults.
-* sml-default-arg:                       Running ML.
-* sml-electric-semi-mode:                Magic Insertion.
-* sml-error-regexp-alist:                Process Defaults.
-* sml-indent-level:                      SML Mode Defaults.
-* sml-mode-hook:                         Basics.
-* sml-mode-info:                         Getting Help.
-* sml-program-name:                      Running ML.
-* sml-prompt-regexp:                     Process Defaults.
-* sml-use-command:                       Process Defaults.
+* inferior-sml-mode-hook:                Running ML.           (line 53)
+* sml-cd-command:                        Process Defaults.     (line 21)
+* sml-default-arg:                       Running ML.           (line 26)
+* sml-electric-semi-mode:                Magic Insertion.      (line 35)
+* sml-error-regexp-alist:                Process Defaults.     (line 37)
+* sml-indent-level:                      SML Mode Defaults.    (line 13)
+* sml-mode-hook:                         Basics.               (line 21)
+* sml-mode-info:                         Getting Help.         (line 31)
+* sml-program-name:                      Running ML.           (line 20)
+* sml-prompt-regexp:                     Process Defaults.     (line 28)
+* sml-use-command:                       Process Defaults.     (line 14)
 
 
 File: sml-mode.info,  Node: Key Index,  Prev: Variable Index,  Up: Top
@@ -855,53 +855,54 @@ File: sml-mode.info,  Node: Key Index,  Prev: Variable Index,  Up: Top
 Key Index
 *********
 
+ [index ]
 * Menu:
 
-* ;:                                     Magic Insertion.
-* <LFD>:                                 Indentation.
-* <TAB>:                                 Indentation.
-* C-c <RET>:                             Magic Insertion.
-* C-c C-b:                               ML Interaction.
-* C-c C-i:                               Getting Help.
-* C-c C-l:                               ML Interaction.
-* C-c C-r:                               ML Interaction.
-* C-c C-s:                               Running ML.
-* C-M-\:                                 Indentation.
-* C-x ;:                                 Indentation.
-* C-x <TAB>:                             Indentation.
-* C-x`:                                  Tracking Errors.
-* M-;:                                   Indentation.
-* M-<LFD>:                               Indentation.
-* M-<TAB>:                               Indentation.
-* M-SPC:                                 Magic Insertion.
-* M-|:                                   Magic Insertion.
+* ;:                                     Magic Insertion.      (line 29)
+* <LFD>:                                 Indentation.          (line 35)
+* <TAB>:                                 Indentation.          (line 13)
+* C-c <RET>:                             Magic Insertion.      (line 42)
+* C-c C-b:                               ML Interaction.       (line 28)
+* C-c C-i:                               Getting Help.         (line 31)
+* C-c C-l:                               ML Interaction.       (line 12)
+* C-c C-r:                               ML Interaction.       (line 21)
+* C-c C-s:                               Running ML.           (line 61)
+* C-M-\:                                 Indentation.          (line 20)
+* C-x ;:                                 Indentation.          (line 57)
+* C-x <TAB>:                             Indentation.          (line 41)
+* C-x`:                                  Tracking Errors.      (line 13)
+* M-;:                                   Indentation.          (line 47)
+* M-<LFD>:                               Indentation.          (line 53)
+* M-<TAB>:                               Indentation.          (line 26)
+* M-SPC:                                 Magic Insertion.      (line 21)
+* M-|:                                   Magic Insertion.      (line 11)
 
 
 
 Tag Table:
-Node: Top207
-Node: Copying1796
-Node: Introduction2605
-Node: Contributors4017
-Node: Getting Started5480
-Node: Getting Help7180
-Node: SML Mode9040
-Node: Basics9844
-Node: Indentation10751
-Node: Magic Insertion12848
-Node: SML Mode Defaults15049
-Node: Interaction Mode15601
-Node: Running ML16946
-Node: ML Interaction19800
-Node: Tracking Errors20939
-Node: Process Defaults21633
-Node: Configuration23504
-Node: Hooks24008
-Node: Key Bindings25851
-Node: Highlighting27417
-Node: Advanced Topics28414
-Node: Command Index30350
-Node: Variable Index31529
-Node: Key Index32283
+Node: Top187
+Node: Copying1782
+Node: Introduction2595
+Node: Contributors4011
+Node: Getting Started5479
+Node: Getting Help7187
+Node: SML Mode9055
+Node: Basics9863
+Node: Indentation10782
+Node: Magic Insertion12892
+Node: SML Mode Defaults15110
+Node: Interaction Mode15671
+Node: Running ML17020
+Node: ML Interaction19889
+Node: Tracking Errors21042
+Node: Process Defaults21745
+Node: Configuration23628
+Node: Hooks24136
+Node: Key Bindings25993
+Node: Highlighting27569
+Node: Advanced Topics28574
+Node: Command Index30518
+Node: Variable Index32034
+Node: Key Index32986
 
 End Tag Table
