@@ -10,11 +10,11 @@
 ;;	Steven Gilmore (?)
 ;;	Matthew Morley <mjm@scs.leeds.ac.uk> (aka <matthew@verisity.com>)
 ;;	Matthias Blume <blume@cs.princeton.edu> (aka <blume@kurims.kyoto-u.ac.jp>)
-;;      (Stefan Monnier) monnier@cs.yale.edu
-;; Maintainer: (Stefan Monnier) monnier+lists/emacs/sml@flint.cs.yale.edu
+;;      (Stefan Monnier) <monnier@iro.umontreal.ca>
+;; Maintainer: (Stefan Monnier) <monnier@iro.umontreal.ca>
 ;; Keywords: SML
-;; $Revision: 3510 $
-;; $Date: 2010-03-04 15:07:06 -0500 (jeu 04 mar 2010) $
+;; $Revision: 3514 $
+;; $Date: 2010-03-04 19:03:43 -0500 (jeu 04 mar 2010) $
 
 ;; This file is not part of GNU Emacs, but it is distributed under the
 ;; same conditions.

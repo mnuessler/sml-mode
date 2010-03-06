@@ -4,7 +4,7 @@
              (or (file-name-directory load-file-name) (car load-path)))
 
 ;;;### (autoloads (sml-yacc-mode sml-lex-mode sml-cm-mode sml-mode)
-;;;;;;  "sml-mode" "sml-mode.el" (19344 4842))
+;;;;;;  "sml-mode" "sml-mode.el" (19344 19039))
 ;;; Generated autoloads from sml-mode.el
 
 (add-to-list 'auto-mode-alist '("\\.s\\(ml\\|ig\\)\\'" . sml-mode))
@@ -47,7 +47,7 @@ Major Mode for editing ML-Yacc files.
 ;;;***
 
 ;;;### (autoloads nil nil ("sml-compat.el" "sml-defs.el" "sml-move.el"
-;;;;;;  "sml-util.el") (19344 5809 79999))
+;;;;;;  "sml-util.el") (19344 21563 982091))
 
 ;;;***
 

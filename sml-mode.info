@@ -148,7 +148,7 @@ following persons have made contributions to sml-mode:
    * Matthias Blume (`blume@kurims.kyoto-u.ac.jp') provided a sml-make
      which was replaced by sml-compile.
 
-   * Monnier Stefan (`monnier@cs.yale.edu') completely reworked the
+   * Monnier Stefan (`monnier@iro.umontreal.ca') completely reworked the
      indentation engine as well as most of the rest of the code and is
      the current maintainer since after version 3.4.
 
@@ -884,25 +884,25 @@ Node: Top187
 Node: Copying1782
 Node: Introduction2595
 Node: Contributors4011
-Node: Getting Started5479
-Node: Getting Help7187
-Node: SML Mode9055
-Node: Basics9863
-Node: Indentation10782
-Node: Magic Insertion12892
-Node: SML Mode Defaults15110
-Node: Interaction Mode15671
-Node: Running ML17020
-Node: ML Interaction19889
-Node: Tracking Errors21042
-Node: Process Defaults21745
-Node: Configuration23628
-Node: Hooks24136
-Node: Key Bindings25993
-Node: Highlighting27569
-Node: Advanced Topics28574
-Node: Command Index30518
-Node: Variable Index32034
-Node: Key Index32986
+Node: Getting Started5484
+Node: Getting Help7192
+Node: SML Mode9060
+Node: Basics9868
+Node: Indentation10787
+Node: Magic Insertion12897
+Node: SML Mode Defaults15115
+Node: Interaction Mode15676
+Node: Running ML17025
+Node: ML Interaction19894
+Node: Tracking Errors21047
+Node: Process Defaults21750
+Node: Configuration23633
+Node: Hooks24141
+Node: Key Bindings25998
+Node: Highlighting27574
+Node: Advanced Topics28579
+Node: Command Index30523
+Node: Variable Index32039
+Node: Key Index32991
 
 End Tag Table
