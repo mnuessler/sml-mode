@@ -3,16 +3,15 @@
 ;; Copyright (C) 1989,1999,2000,2004,2007,2010-2012  Free Software Foundation, Inc.
 
 ;; Maintainer: (Stefan Monnier) <monnier@iro.umontreal.ca>
-;; Version: 6.0
+;; Version: 6.1
 ;; Keywords: SML
-;; Authors of previous versions:
-;;      Lars Bo Nielsen
-;;      Olin Shivers
-;;	Fritz Knabe (?)
-;;	Steven Gilmore (?)
-;;	Matthew Morley <mjm@scs.leeds.ac.uk>
-;;	Matthias Blume <blume@cs.princeton.edu>
-;;      (Stefan Monnier) <monnier@iro.umontreal.ca>
+;; Author:	Lars Bo Nielsen
+;;		Olin Shivers
+;;		Fritz Knabe (?)
+;;		Steven Gilmore (?)
+;;		Matthew Morley <mjm@scs.leeds.ac.uk>
+;;		Matthias Blume <blume@cs.princeton.edu>
+;;		(Stefan Monnier) <monnier@iro.umontreal.ca>
 
 ;; This file is part of GNU Emacs.
 
@@ -42,6 +41,75 @@
 ;; - Electric pipe key.
 ;; - outline-minor-mode (with some known problems).
 ;; - Interaction with a read-eval-print loop.
+
+;;;; Known bugs:
+
+;; - Indentation after "functor toto() where type foo = bar ="
+;;   Because the last is treated as an equality comparison.
+;; - indentation of a declaration after a long `datatype' can be slow.
+
+;;;; News:
+
+;;;;; Changes since 5.0:
+
+;; - sml-electric-pipe-mode to make the | key electric.
+;; - Removal of a lot of compatibility code.  Requires Emacs-24.
+;; - Integrate in GNU ELPA.
+
+;;;;; Changes since 4.1:
+
+;; - New indentation code using SMIE when available.
+;; - `sml-back-to-outer-indent' is now on S-tab (aka `backtab') rather
+;;   than M-tab.
+;; - Support for electric-layout-mode and electric-indent-mode.
+;; - `sml-mark-defun' tries to be more clever.
+;; - A single file (sml-mode.el) is needed unless you want to use an
+;;   interactive process like SML/NJ, or if your Emacs does not provide SMIE.
+
+;;;;; Changes since 4.0:
+
+;; - Switch to GPLv3+.
+;; - When possible (i.e. running under Emacs>=23), be case-sensitive when
+;;   expanding abbreviations, and don't expand them in comments and strings.
+;; - When you `next-error' to a type error, highlight the actual parts of the
+;;   types that differ.
+;; - Flush the recorded errors not only upon sml-compile and friends, but also
+;;   when typing commands directly at the prompt.
+;; - New command sml-mlton-typecheck.
+;; - Simple support to parse errors and warnings in MLton's output.
+;; - Simple support for MLton's def-use files.
+
+;;;;; Changes since 3.9.5:
+
+;; - No need to add the dir to your load-path any more.
+;;   The sml-mode-startup.el file does it for you.
+;; - Symbols like -> can be displayed as real arrows.
+;;   See sml-font-lock-symbols.
+;; - Fix some incompatibilities with the upcoming Emacs-21.4.
+;; - Indentation rules improved.  New customizable variable
+;;   `sml-rightalign-and'.  Also `sml-symbol-indent' is now customizable.
+
+;;;;; Changes since 3.9.3:
+
+;; - New add-log support (try C-x 4 a from within an SML function).
+;; - Imenu support
+;; - sml-bindings has disappeared.
+;; - The code skeletons are now abbrevs as well.
+;; - A new *sml* process is sent the content of sml-config-file
+;;   (~/.sml-proc.sml) if it exists.
+;; - `sml-compile' works yet a bit differently.  The command can begin
+;;   with `cd "path";' and it will be replaced by OS.FileSys.chDir.
+;; - run-sml now pops up the new buffer.  It can also run the command on
+;;   another machine.  And it always prompts for the command name.
+;;   Use a prefix argument if you want to give args or to specify a host on
+;;   which to run the command.
+;; - mouse-2 to yank in *sml* should work again (but won't work for next-error
+;;   any more).
+;; - New major-modes sml-cm-mode, sml-lex-mode and sml-yacc-mode.
+;; - sml-load-hook has disappeared as has inferior-sml-load-hook.
+;; - sml-mode-startup.el is now automatically generated and you're supposed to
+;;   `load' it from .emacs or site-start.el.
+;; - Minor bug fixes.
 
 ;;; Code:
 
@@ -116,7 +184,7 @@ notion of \"the end of an outline\".")
 (easy-menu-define sml-mode-menu sml-mode-map "Menu used in `sml-mode'."
   '("SML"
     ("Process"
-     ["Start SML repl"		run-sml		t]
+     ["Start SML repl"		sml-run		t]
      ["-" nil nil]
      ["Compile the project"	sml-prog-proc-compile	t]
      ["Send file"		sml-prog-proc-load-file	t]
@@ -762,6 +830,11 @@ AND-GO if non-nil indicate to additionally switch to the process's buffer."
                             (car sml-prog-proc--tmp-file)))
   str)
 
+(defvar sml-prog-proc-comint-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\C-c\C-l" 'sml-prog-proc-load-file)
+    map))
+
 (define-derived-mode sml-prog-proc-comint-mode comint-mode "Sml-Prog-Proc-Comint"
   "Major mode for an inferior process used to run&compile source code."
   ;; Enable compilation-minor-mode, but only after the child mode is setup
@@ -964,6 +1037,10 @@ See `compilation-error-regexp-alist' for a description of the format.")
        (read-string "On host: " sml-host-name)
      sml-host-name)))
 
+;;;###autoload
+(defalias 'run-sml 'sml-run)
+
+;;;###autoload
 (defun sml-run (cmd arg &optional host)
   "Run the program CMD with given arguments ARG.
 The command is run in buffer *CMD* using mode `inferior-sml-mode'.
@@ -1014,8 +1091,7 @@ With a prefix argument AND-GO switch to the repl buffer as well."
 (defvar inferior-sml-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map comint-mode-map)
-    (define-key map "\C-c\C-s" 'run-sml)
-    (define-key map "\C-c\C-l" 'sml-load-file)
+    (define-key map "\C-c\C-s" 'sml-run)
     (define-key map "\t" 'completion-at-point)
     map)
   "Keymap for inferior-sml mode.")
@@ -1718,6 +1794,108 @@ If nil, align it with previous cases."
   (set (make-local-variable 'font-lock-defaults) sml-yacc-font-lock-defaults))
 
 
+
+;;;; ChangeLog:
+
+;; 2012-10-31  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	* sml-mode.el: Integrate BUGS&NEWS; re-add run-sml.
+;; 
+;; 2012-10-22  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Add SML-mode.
+;; 
+;; 2012-10-22  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Cleanup copyright; Merge prog-proc into sml-mode.el
+;; 
+;; 2012-10-19  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Move sml-compile to prog-proc.
+;; 
+;; 2012-10-19  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	* sml-mode.el (sml-electric-pipe-mode): New var.
+;; 	(sml-pipeheads): Add (, {, and [ to more reliably detect cases where
+;; 	the pipe is not part of a case/fun/...
+;; 	(sml-tyvarseq-re): Use shy groups.
+;; 	(sml-font-lock-keywords): Adjust accordingly.
+;; 	(sml-compile): Avoid the 3rd part of dolist's spec.
+;; 	(sml-post-self-insert-pipe): New fun, extracted from sml-electric-pipe.
+;; 	(sml-mode): Use it to obey sml-electric-pipe-mode.
+;; 	(sml-electric-pipe): Use sml-post-self-insert-pipe.
+;; 	* makefile.pkg (ELFILES): Remove sml-proc.el.
+;; 	* prog-proc.el: Rename from sml-prog-proc.el.
+;; 
+;; 2012-10-15  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Add sml-compile back into sml-mode
+;; 
+;; 2012-10-04  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Move sml-proc to either prog-proc or sml-mode.
+;; 
+;; 2012-10-04  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Fix compilation
+;; 
+;; 2012-10-03  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Start preparing for the move to ELPA.
+;; 
+;; 2012-04-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Merge from trunk
+;; 
+;; 2012-04-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Merge sml-defs.el into sml-mode.el.
+;; 	* sml-mode.el: Merge code from sml-defs.el.
+;; 	Remove ":group 'sml" since they're now redundant.
+;; 	* makefile.pkg (ELFILES): Adjust.
+;; 
+;; 2012-04-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	* sml-mode.el (sml-mark-function): New implementation using SMIE.
+;; 	* sml-defs.el (sml-mode-map): Use backtab.
+;; 	Remove leftover unused sml-drag-region binding.
+;; 
+;; 2012-04-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	-
+;; 
+;; 2012-04-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Merge from trunk
+;; 
+;; 2012-04-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Use SMIE by default and make sml-oldindent optional.
+;; 	* sml-mode.el: Only load sml-oldindent if necessary.
+;; 	(sml-use-smie): Default to t.
+;; 	(sml-smie-datatype-|-p): Better handle incomplete datatype branch.
+;; 	(sml-mode): Use prog-mode.  Setup electric-layout and electric-indent.
+;; 	(sml-mode-variables): Always setup SMIE if possible.
+;; 	(sml-imenu-create-index, sml-funname-of-and, sml-electric-pipe)
+;; 	(sml-beginning-of-defun, sml-defuse-symdata-at-point)
+;; 	(sml-yacc-font-lock-keywords, sml-yacc-indentation):
+;; 	Avoid sml-oldindent functions.
+;; 	(sml-find-forward): Move from sml-oldindent and re-implement.
+;; 	(sml-electric-semi): Use self-insert-command so electric-layout and
+;; 	electric-indent can do their job.
+;; 	(sml-smie-find-matching-starter, sml-find-matching-starter)
+;; 	(sml-smie-skip-siblings, sml-skip-siblings): New functions.
+;; 	* sml-oldindent.el (sml-starters-indent-after, sml-exptrail-syms):
+;; 	Remove, unused.
+;; 	(sml-find-forward): Move back to sml-mode.el.
+;; 	(sml-old-find-matching-starter): Rename from sml-find-matching-starter.
+;; 	(sml-old-skip-siblings): Move&rename from sml-mode:sml-skip-siblings.
+;; 
+;; 2012-04-11  Stefan Monnier  <monnier@iro.umontreal.ca>
+;; 
+;; 	Merge from trunk
+;; 
+
 (provide 'sml-mode)
 
 ;;; sml-mode.el ends here
