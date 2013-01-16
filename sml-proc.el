@@ -1,11 +1,8 @@
 ;;; sml-proc.el --- Comint based interaction mode for Standard ML.
 
-;; Copyright (C) 1999, 2000, 2003, 2004, 2005, 2007  Stefan Monnier
+;; Copyright (C) 1999,2000,2003,2004,2005,2007,2012  Stefan Monnier
 ;; Copyright (C) 1994-1997  Matthew J. Morley
 ;; Copyright (C) 1989       Lars Bo Nielsen
-
-;; $Revision: 3511 $
-;; $Date: 2010-03-04 15:10:43 -0500 (jeu 04 mar 2010) $
 
 ;; ====================================================================
 
@@ -91,7 +88,6 @@
 
 (eval-when-compile (require 'cl))
 (require 'sml-mode)
-(require 'sml-util)
 (require 'comint)
 (require 'compile)
 
@@ -100,23 +96,19 @@
   :group 'sml)
 
 (defcustom sml-program-name "sml"
-  "*Program to run as ML."
-  :group 'sml-proc
+  "Program to run as ML."
   :type '(string))
 
 (defcustom sml-default-arg ""
-  "*Default command line option to pass, if any."
-  :group 'sml-proc
+  "Default command line option to pass, if any."
   :type '(string))
 
 (defcustom sml-host-name ""
-  "*Host on which to run ML."
-  :group 'sml-proc
+  "Host on which to run ML."
   :type '(string))
 
 (defcustom sml-config-file "~/.smlproc.sml"
-  "*File that should be fed to the ML process when started."
-  :group 'sml-proc
+  "File that should be fed to the ML process when started."
   :type '(string))
 
 (defcustom sml-compile-command "CM.make()"
@@ -128,7 +120,7 @@ See also `sml-compile-commands-alist'.")
     ("CMB.make()" . "pathconfig")
     ("CM.make()" . "sources.cm")
     ("use \"load-all\"" . "load-all"))
-  "*Commands used by default by `sml-compile'.
+  "Commands used by default by `sml-compile'.
 Each command is associated with its \"main\" file.
 It is perfectly OK to associate several files with a command or several
 commands with the same file.")
@@ -202,8 +194,7 @@ The format specifier \"%s\" will be converted into the directory name
 specified when running the command \\[sml-cd].")
 
 (defcustom sml-prompt-regexp "^[-=>#] *"
-  "*Regexp used to recognise prompts in the inferior ML process."
-  :group 'sml-proc
+  "Regexp used to recognise prompts in the inferior ML process."
   :type '(regexp))
 
 (defvar sml-error-regexp-alist
@@ -262,14 +253,16 @@ See `compilation-error-regexp-alist' for a description of the format.")
 
 ;;; CODE
 
-(defmap inferior-sml-mode-map
-  '(("\C-c\C-s"	. run-sml)
-    ("\C-c\C-l"	. sml-load-file)
-    ("\t"	. comint-dynamic-complete))
-  "Keymap for inferior-sml mode"
-  :inherit comint-mode-map
-  :group 'sml-proc)
-
+(defvar inferior-sml-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map comint-mode-map)
+    (define-key map "\C-c\C-s" 'run-sml)
+    (define-key map "\C-c\C-l" 'sml-load-file)
+    (define-key map "\t"
+      (if (fboundp 'completion-at-point)
+          'completion-at-point 'comint-dynamic-complete))
+    map)
+  "Keymap for inferior-sml mode")
 
 ;; buffer-local
 
@@ -778,13 +771,13 @@ the overlay should simply be removed: \\[universal-argument] \
   (when sml-error-overlay
     (unless (overlayp sml-error-overlay)
       (let ((ol sml-error-overlay))
-	(setq sml-error-overlay (make-overlay 0 0))
+	(setq sml-error-overlay (make-overlay (point) (point)))
 	(overlay-put sml-error-overlay 'face (if (symbolp ol) ol 'region))))
-    (if undo (move-overlay sml-error-overlay 1 1 (current-buffer))
-      ;; if active regions, signals mark not active if no region set
-      (let ((beg (or beg (region-beginning)))
-	    (end (or end (region-end))))
-	(move-overlay sml-error-overlay beg end (current-buffer))))))
+    (if undo (delete-overlay sml-error-overlay)
+      ;; If active regions, signals mark not active if no region set.
+      (move-overlay sml-error-overlay
+                    (or beg (region-beginning)) (or end (region-end))
+                    (current-buffer)))))
 
 (provide 'sml-proc)
 

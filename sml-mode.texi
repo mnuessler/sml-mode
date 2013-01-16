@@ -1,6 +1,6 @@
 \input texinfo @c -*-texinfo-*-
 
-@comment "@(#)$Name$:$Id: sml-mode.texi 3514 2010-03-05 00:03:43Z monnier $"
+@comment "@(#)$Name$:$Id$"
 
 @comment Documentation for the GNU Emacs SML mode.
 @comment Copyright (C) 1997-1999 Matthew J.@: Morley
